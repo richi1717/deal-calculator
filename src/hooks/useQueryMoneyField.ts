@@ -31,7 +31,6 @@ export function useQueryMoneyField({
 }: Options) {
   const [params, setParams] = useSearchParams()
 
-  // Only used to initialize and to resync when kMode changes / navigation happens
   const initialRaw = useMemo(() => {
     const rawParam = params.get(key)
     const n = rawParam !== null ? Number(rawParam) : NaN
@@ -46,7 +45,6 @@ export function useQueryMoneyField({
 
   const [raw, setRaw] = useState(initialRaw)
 
-  // Resync displayed value when K mode toggles (or when URL changes externally)
   useEffect(() => {
     setRaw(initialRaw)
   }, [initialRaw])
@@ -84,25 +82,17 @@ export function useQueryMoneyField({
   }
 
   const onChange = (next: string) => {
-    // do NOT allow commas while typing, we’ll format on blur
     const cleaned = stripCommas(next)
-
-    // allow only digits + one dot
     if (!/^\d*\.?\d*$/.test(cleaned)) return
-
     setRaw(cleaned)
-    // IMPORTANT: do NOT commit to URL here
   }
 
   const onFocus = () => {
-    // editing mode: remove commas so backspace is normal
     setRaw(stripCommas(raw))
   }
 
   const onBlur = () => {
     const cleaned = stripCommas(raw).trim()
-
-    // commit URL on blur so share links still work
     commitToUrl(cleaned)
 
     if (cleaned === '') return
@@ -110,7 +100,6 @@ export function useQueryMoneyField({
     const n = Number(cleaned)
     if (!Number.isFinite(n)) return
 
-    // display formatting on blur
     if (kMode) {
       const rounded = roundTo(n, kDisplayDecimals)
       setRaw(formatNumber(rounded, kDisplayDecimals).replace(/\.0$/, ''))
@@ -120,5 +109,25 @@ export function useQueryMoneyField({
     }
   }
 
-  return { raw, dollars, onChange, onFocus, onBlur }
+  const setValue = (nextDollars: number) => {
+    const rounded = Math.round(nextDollars)
+    const nextParams = new URLSearchParams(params)
+    if (rounded === defaultDollars) nextParams.delete(key)
+    else nextParams.set(key, String(rounded))
+    setParams(nextParams, { replace: true })
+
+    if (kMode) {
+      const k = rounded / 1000
+      setRaw(
+        formatNumber(roundTo(k, kDisplayDecimals), kDisplayDecimals).replace(
+          /\.0$/,
+          '',
+        ),
+      )
+    } else {
+      setRaw(formatNumber(rounded, 0))
+    }
+  }
+
+  return { raw, dollars, onChange, onFocus, onBlur, setValue }
 }

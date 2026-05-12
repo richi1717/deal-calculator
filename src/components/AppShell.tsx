@@ -22,6 +22,7 @@ import LightModeIcon from '@mui/icons-material/LightMode'
 import CloseIcon from '@mui/icons-material/Close'
 import SettingsIcon from '@mui/icons-material/Settings'
 import { makeTheme } from '../theme/theme'
+import SettingsDrawer from './SettingsDrawer'
 
 const STORAGE_KEY = 'dealcalc_theme_mode'
 
@@ -97,13 +98,17 @@ export default function AppShell({ children }: PropsWithChildren) {
           anchor="right"
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
-          slotProps={{ paper: { sx: { width: 360 } } }}
+          slotProps={{ paper: { sx: { width: 320 } } }}
         >
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 2, pb: 1 }}>
             <Stack
               direction="row"
               spacing={1}
-              sx={{ alignItems: 'center', width: 1, justifyContent: 'flex-end' }}
+              sx={{
+                alignItems: 'center',
+                width: 1,
+                justifyContent: 'flex-end',
+              }}
             >
               <IconButton onClick={toggle} aria-label="Toggle theme" edge="end">
                 {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
@@ -118,19 +123,13 @@ export default function AppShell({ children }: PropsWithChildren) {
             </Stack>
             <Typography variant="h6">Settings</Typography>
             <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.7 }}>
-              Defaults that apply to your deals
+              Defaults that apply to all deals
             </Typography>
           </Box>
 
           <Divider />
 
-          <Box sx={{ p: 2 }}>
-            {/* Placeholder for now. Next step: profit, fee, rehab rates */}
-            <Typography variant="body2" sx={{ opacity: 0.8 }}>
-              Coming next: min profit, wholesale fee, rehab $/sqft presets,
-              reset
-            </Typography>
-          </Box>
+          <SettingsDrawer />
         </Drawer>
 
         <Box sx={{ p: 2 }}>{children}</Box>

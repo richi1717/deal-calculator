@@ -1,11 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { SettingsProvider } from './context/settings'
 import CalculatorPage from './pages/CalculatorPage'
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/calc" element={<CalculatorPage />} />
-      <Route path="*" element={<Navigate to="/calc" replace />} />
-    </Routes>
+    <SettingsProvider>
+      <Routes>
+        <Route path="/calc" element={<CalculatorPage />} />
+        <Route path="*" element={<Navigate to="/calc" replace />} />
+      </Routes>
+    </SettingsProvider>
   )
 }
