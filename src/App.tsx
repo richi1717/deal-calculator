@@ -6,8 +6,8 @@ export default function App() {
   return (
     <SettingsProvider>
       <Routes>
-        <Route path="/calc" element={<CalculatorPage />} />
-        <Route path="*" element={<Navigate to="/calc" replace />} />
+        <Route path="/" element={<CalculatorPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </SettingsProvider>
   )

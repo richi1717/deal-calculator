@@ -15,8 +15,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { useSettings } from '../context/settings'
 
 function makeBookmarklet(appOrigin: string) {
-  const url = `${appOrigin}/calc`
-  return `javascript:(function(){var text=document.body.innerText;var addr=document.title.replace(/\\s*[|\\-\\u2013\\u2014].*/,'').trim();var sqM=text.match(/([1-9][\\d,]{2,5})\\s*(?:sq\\.?\\s*ft\\.?|square\\s*feet)/i);var sqft=sqM?sqM[1].replace(/,/g,''):'';var pM=text.match(/\\$\\s*([1-9]\\d{0,2}(?:,\\d{3}){1,2})/g)||[];var price='';for(var i=0;i<pM.length;i++){var n=parseInt(pM[i].replace(/[$,\\s]/g,''));if(n>=50000&&n<=5000000){price=String(n);break;}}var msg='Scraped from page:\\n\\nTitle:  '+(addr||'not found')+'\\nSqft:   '+(sqft?sqft+' sqft':'not found')+'\\nPrice:  '+(price?'$'+Number(price).toLocaleString():'not found')+'\\n\\nOpen Deal Calculator?';if(!confirm(msg))return;var p=new URLSearchParams();if(addr)p.set('t',addr);if(sqft)p.set('sqft',sqft);if(price)p.set('list',price);window.open('${url}?'+p.toString(),'_blank');})();`
+  return `javascript:(function(){var text=document.body.innerText;var addr=document.title.replace(/\\s*[|\\-\\u2013\\u2014].*/,'').trim();var sqM=text.match(/([1-9][\\d,]{2,5})\\s*(?:sq\\.?\\s*ft\\.?|square\\s*feet)/i);var sqft=sqM?sqM[1].replace(/,/g,''):'';var pM=text.match(/\\$\\s*([1-9]\\d{0,2}(?:,\\d{3}){1,2})/g)||[];var price='';for(var i=0;i<pM.length;i++){var n=parseInt(pM[i].replace(/[$,\\s]/g,''));if(n>=50000&&n<=5000000){price=String(n);break;}}var msg='Scraped from page:\\n\\nTitle:  '+(addr||'not found')+'\\nSqft:   '+(sqft?sqft+' sqft':'not found')+'\\nPrice:  '+(price?'$'+Number(price).toLocaleString():'not found')+'\\n\\nOpen Deal Calculator?';if(!confirm(msg))return;var p=new URLSearchParams();if(addr)p.set('t',addr);if(sqft)p.set('sqft',sqft);if(price)p.set('list',price);window.open('${appOrigin}?'+p.toString(),'_blank');})();`
 }
 
 function pctToDisplay(pct: number) {
