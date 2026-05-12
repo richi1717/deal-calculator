@@ -15,12 +15,15 @@ import {
   Drawer,
   Divider,
   Stack,
+  Snackbar,
+  Alert,
 } from '@mui/material'
 import { ThemeProvider } from '@mui/material/styles'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import CloseIcon from '@mui/icons-material/Close'
 import SettingsIcon from '@mui/icons-material/Settings'
+import ShareIcon from '@mui/icons-material/Share'
 import { makeTheme } from '../theme/theme'
 import SettingsDrawer from './SettingsDrawer'
 
@@ -55,6 +58,14 @@ export default function AppShell({ children }: PropsWithChildren) {
   })
 
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    })
+  }
 
   const theme = useMemo(() => makeTheme(mode), [mode])
 
@@ -83,6 +94,10 @@ export default function AppShell({ children }: PropsWithChildren) {
             <Typography variant="h6" sx={{ flex: 1 }}>
               Deal Calculator
             </Typography>
+
+            <IconButton onClick={handleShare} aria-label="Share">
+              <ShareIcon />
+            </IconButton>
 
             <IconButton
               onClick={() => setSettingsOpen(true)}
@@ -133,6 +148,16 @@ export default function AppShell({ children }: PropsWithChildren) {
         </Drawer>
 
         <Box sx={{ p: 2 }}>{children}</Box>
+
+        <Snackbar
+          open={shareCopied}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          sx={{ top: { xs: 56, sm: 64 } }}
+        >
+          <Alert severity="success" variant="filled" sx={{ width: '100%' }}>
+            Link copied to clipboard!
+          </Alert>
+        </Snackbar>
       </ThemeProvider>
     </SettingsDrawerContext.Provider>
   )

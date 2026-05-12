@@ -17,7 +17,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import AppShell from '../components/AppShell'
+import AppShell, { useSettingsDrawer } from '../components/AppShell'
 import { calculateSimpleMao } from '../calc/simpleMao'
 import { useQueryMoneyField } from '../hooks/useQueryMoneyField'
 import { useQueryStateNumber } from '../hooks/useQueryStateNumber'
@@ -49,9 +49,29 @@ function gradeColor(grade: string): GradeChipColor {
 const fmt$ = (n: number) => `$${Math.round(n).toLocaleString()}`
 const fmtPct = (n: number) => `${(n * 100).toFixed(1)}%`
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({
+  label,
+  value,
+  onClick,
+}: {
+  label: string
+  value: string
+  onClick?: () => void
+}) {
   return (
-    <Stack direction="row" sx={{ justifyContent: 'space-between', py: 0.25 }}>
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'space-between',
+        py: 0.25,
+        cursor: onClick ? 'pointer' : undefined,
+        borderRadius: 1,
+        px: 0.5,
+        mx: -0.5,
+        '&:hover': onClick ? { bgcolor: 'action.hover' } : undefined,
+      }}
+      onClick={onClick}
+    >
       <Typography variant="body2" sx={{ opacity: 0.65 }}>
         {label}
       </Typography>
@@ -61,12 +81,21 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function CalculatorPage() {
+  return (
+    <AppShell>
+      <CalculatorContent />
+    </AppShell>
+  )
+}
+
+function CalculatorContent() {
   const { settings } = useSettings()
   const { kMode } = settings
+  const { openDrawer } = useSettingsDrawer()
 
   const title = useQueryStateString('t', '')
 
-  const arv = useQueryMoneyField({ key: 'arv', defaultDollars: 215000, kMode })
+  const arv = useQueryMoneyField({ key: 'arv', defaultDollars: 0, kMode })
   const rehab = useQueryMoneyField({
     key: 'rehab',
     defaultDollars: 25000,
@@ -160,305 +189,304 @@ export default function CalculatorPage() {
   } as const
 
   return (
-    <AppShell>
-      <Grid container spacing={2}>
-        {/* ── Inputs ── */}
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">Inputs</Typography>
+    <Grid container spacing={2}>
+      {/* ── Inputs ── */}
+      <Grid size={{ xs: 12, md: 7 }}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6">Inputs</Typography>
 
-              <TextField
-                label="Title"
-                placeholder="123 Main St, Springfield"
-                value={title.raw}
-                onChange={(e) => title.onChange(e.target.value)}
-                onBlur={title.onBlur}
-                fullWidth
-                margin="normal"
-              />
+            <TextField
+              label="Title"
+              placeholder="123 Main St, Springfield"
+              value={title.raw}
+              onChange={(e) => title.onChange(e.target.value)}
+              onBlur={title.onBlur}
+              fullWidth
+              margin="normal"
+            />
 
-              <TextField
-                label="List Price"
-                value={list.raw}
-                onChange={(e) => list.onChange(e.target.value)}
-                onFocus={list.onFocus}
-                onBlur={list.onBlur}
-                helperText={kHelper(list.dollars)}
-                fullWidth
-                margin="normal"
-                slotProps={moneySlotProps}
-              />
+            <TextField
+              label="List Price"
+              value={list.raw}
+              onChange={(e) => list.onChange(e.target.value)}
+              onFocus={list.onFocus}
+              onBlur={list.onBlur}
+              helperText={kHelper(list.dollars)}
+              fullWidth
+              margin="normal"
+              slotProps={moneySlotProps}
+            />
 
-              <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 2 }} />
 
-              <TextField
-                label="ARV"
-                value={arv.raw}
-                onChange={(e) => arv.onChange(e.target.value)}
-                onFocus={arv.onFocus}
-                onBlur={arv.onBlur}
-                helperText={kHelper(arv.dollars)}
-                fullWidth
-                margin="normal"
-                slotProps={moneySlotProps}
-              />
+            <TextField
+              label="ARV"
+              value={arv.raw}
+              onChange={(e) => arv.onChange(e.target.value)}
+              onFocus={arv.onFocus}
+              onBlur={arv.onBlur}
+              helperText={kHelper(arv.dollars)}
+              fullWidth
+              margin="normal"
+              slotProps={moneySlotProps}
+            />
 
-              <TextField
-                label="Rehab"
-                value={rehab.raw}
-                onChange={(e) => rehab.onChange(e.target.value)}
-                onFocus={rehab.onFocus}
-                onBlur={rehab.onBlur}
-                helperText={kHelper(rehab.dollars)}
-                fullWidth
-                margin="normal"
-                slotProps={moneySlotProps}
-              />
+            <TextField
+              label="Rehab"
+              value={rehab.raw}
+              onChange={(e) => rehab.onChange(e.target.value)}
+              onFocus={rehab.onFocus}
+              onBlur={rehab.onBlur}
+              helperText={kHelper(rehab.dollars)}
+              fullWidth
+              margin="normal"
+              slotProps={moneySlotProps}
+            />
 
-              <TextField
-                label="Desired Profit"
-                value={profit.raw}
-                onChange={(e) => profit.onChange(e.target.value)}
-                onFocus={profit.onFocus}
-                onBlur={profit.onBlur}
-                helperText={kHelper(profit.dollars)}
-                fullWidth
-                margin="normal"
-                slotProps={moneySlotProps}
-              />
+            <TextField
+              label="Desired Profit"
+              value={profit.raw}
+              onChange={(e) => profit.onChange(e.target.value)}
+              onFocus={profit.onFocus}
+              onBlur={profit.onBlur}
+              helperText={kHelper(profit.dollars)}
+              fullWidth
+              margin="normal"
+              slotProps={moneySlotProps}
+            />
 
-              <TextField
-                label="Wholesale Fee"
-                value={fee.raw}
-                onChange={(e) => fee.onChange(e.target.value)}
-                onFocus={fee.onFocus}
-                onBlur={fee.onBlur}
-                helperText={kHelper(fee.dollars)}
-                fullWidth
-                margin="normal"
-                slotProps={moneySlotProps}
-              />
-            </CardContent>
-          </Card>
-        </Grid>
+            <TextField
+              label="Wholesale Fee"
+              value={fee.raw}
+              onChange={(e) => fee.onChange(e.target.value)}
+              onFocus={fee.onFocus}
+              onBlur={fee.onBlur}
+              helperText={kHelper(fee.dollars)}
+              fullWidth
+              margin="normal"
+              slotProps={moneySlotProps}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
 
-        {/* ── Results ── */}
+      {/* ── Results ── */}
+      <Grid size={{ xs: 12, md: 5 }}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6">Results</Typography>
+
+            {title.raw.trim() && (
+              <Typography sx={{ mt: 1, opacity: 0.8 }} variant="body2">
+                {title.raw}
+              </Typography>
+            )}
+
+            <Typography sx={{ mt: 2, opacity: 0.65 }} variant="body2">
+              ARV Adjusted ({fmtPct(1 - settings.haircutPct)})
+            </Typography>
+            <Typography variant="body1">{fmt$(result.arvAdjusted)}</Typography>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Stack direction="row" sx={{ alignItems: 'center' }} spacing={1}>
+              <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
+                MAO
+              </Typography>
+              {listChip}
+            </Stack>
+
+            <Typography
+              sx={{
+                fontSize: 28,
+                fontWeight: 800,
+                color: result.mao < 0 ? 'error.main' : undefined,
+              }}
+            >
+              {fmt$(result.mao)}
+            </Typography>
+
+            {showListCheck && (
+              <Typography sx={{ mt: 0.5, opacity: 0.7 }} variant="body2">
+                List: {fmt$(list.dollars)}
+              </Typography>
+            )}
+
+            <Divider sx={{ my: 2 }} />
+
+            <InfoRow
+              label={`Est Commission (${fmtPct(settings.commissionPct)})`}
+              value={fmt$(result.estCommission)}
+              onClick={openDrawer}
+            />
+            <InfoRow
+              label={`Est Down Pmt (${fmtPct(settings.dpPct)})`}
+              value={fmt$(result.estDP)}
+              onClick={openDrawer}
+            />
+            <InfoRow
+              label="Est Monthly I/O"
+              value={fmt$(result.estMonthlyIO)}
+              onClick={openDrawer}
+            />
+
+            <Divider sx={{ my: 1.5 }} />
+
+            <InfoRow label="Buy Ratio" value={fmtPct(result.buyRatio)} />
+            <InfoRow
+              label="Cash on Cash ROI"
+              value={fmtPct(result.cashOnCashROI)}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* ── Quick Rehab Calculator ── */}
+      <Grid size={{ xs: 12, md: 7 }}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6" sx={{ mb: 1.5 }}>
+              Quick Rehab Calculator
+            </Typography>
+
+            <TextField
+              label="Square Feet"
+              value={sqftRaw}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, '')
+                setSqftRaw(v)
+              }}
+              onBlur={() => {
+                const n = parseInt(sqftRaw)
+                if (Number.isFinite(n) && n > 0) setSqft(n)
+                else {
+                  setSqft(0)
+                  setSqftRaw('')
+                }
+              }}
+              placeholder="0"
+              sx={{ width: 160, mb: 2 }}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">sqft</InputAdornment>
+                  ),
+                },
+              }}
+            />
+
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Rate</TableCell>
+                  <TableCell>Grade</TableCell>
+                  <TableCell align="right">Total</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {REHAB_TIERS.map((tier) => {
+                  const total = sqft > 0 ? tier.rate * sqft : null
+                  const isActive = total !== null && total === rehab.dollars
+                  return (
+                    <Tooltip
+                      key={tier.rate}
+                      title={
+                        sqft > 0
+                          ? 'Click to use this rehab estimate'
+                          : 'Enter sqft first'
+                      }
+                      placement="left"
+                      disableInteractive
+                    >
+                      <TableRow
+                        hover
+                        selected={isActive}
+                        onClick={() => {
+                          if (total !== null) rehab.setValue(total)
+                        }}
+                        sx={{ cursor: sqft > 0 ? 'pointer' : 'default' }}
+                      >
+                        <TableCell>${tier.rate}/sqft</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={tier.grade}
+                            color={gradeColor(tier.grade)}
+                            size="small"
+                            variant="outlined"
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          {total !== null ? fmtTableMoney(total) : '—'}
+                        </TableCell>
+                      </TableRow>
+                    </Tooltip>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </Grid>
+      {settings.showGrossYield && (
         <Grid size={{ xs: 12, md: 5 }}>
           <Card>
             <CardContent>
-              <Typography variant="h6">Results</Typography>
-
-              {title.raw.trim() && (
-                <Typography sx={{ mt: 1, opacity: 0.8 }} variant="body2">
-                  {title.raw}
-                </Typography>
-              )}
-
-              <Typography sx={{ mt: 2, opacity: 0.65 }} variant="body2">
-                ARV Adjusted ({fmtPct(1 - settings.haircutPct)})
-              </Typography>
-              <Typography variant="body1">
-                {fmt$(result.arvAdjusted)}
-              </Typography>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Stack direction="row" sx={{ alignItems: 'center' }} spacing={1}>
-                <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
-                  MAO
-                </Typography>
-                {listChip}
-              </Stack>
-
+              <Typography variant="h6">Gross Yield Calculator</Typography>
               <Typography
-                sx={{
-                  fontSize: 28,
-                  fontWeight: 800,
-                  color: result.mao < 0 ? 'error.main' : undefined,
-                }}
+                variant="body2"
+                sx={{ mt: 0.5, mb: 2, opacity: 0.65 }}
               >
-                {fmt$(result.mao)}
-              </Typography>
-
-              {showListCheck && (
-                <Typography sx={{ mt: 0.5, opacity: 0.7 }} variant="body2">
-                  List: {fmt$(list.dollars)}
-                </Typography>
-              )}
-
-              <Divider sx={{ my: 2 }} />
-
-              <InfoRow
-                label={`Est Commission (${fmtPct(settings.commissionPct)})`}
-                value={fmt$(result.estCommission)}
-              />
-              <InfoRow
-                label={`Est Down Pmt (${fmtPct(settings.dpPct)})`}
-                value={fmt$(result.estDP)}
-              />
-              <InfoRow
-                label="Est Monthly I/O"
-                value={fmt$(result.estMonthlyIO)}
-              />
-
-              <Divider sx={{ my: 1.5 }} />
-
-              <InfoRow label="Buy Ratio" value={fmtPct(result.buyRatio)} />
-              <InfoRow
-                label="Cash on Cash ROI"
-                value={fmtPct(result.cashOnCashROI)}
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* ── Quick Rehab Calculator ── */}
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 1.5 }}>
-                Quick Rehab Calculator
+                For rental analysis. Annual rent ÷ (purchase + rehab).
               </Typography>
 
               <TextField
-                label="Square Feet"
-                value={sqftRaw}
-                onChange={(e) => {
-                  const v = e.target.value.replace(/\D/g, '')
-                  setSqftRaw(v)
-                }}
-                onBlur={() => {
-                  const n = parseInt(sqftRaw)
-                  if (Number.isFinite(n) && n > 0) setSqft(n)
-                  else {
-                    setSqft(0)
-                    setSqftRaw('')
-                  }
-                }}
-                placeholder="0"
-                sx={{ width: 160, mb: 2 }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">sqft</InputAdornment>
-                    ),
-                  },
-                }}
+                label="Annual Market Rent"
+                value={gyRent.raw}
+                onChange={(e) => gyRent.onChange(e.target.value)}
+                onFocus={gyRent.onFocus}
+                onBlur={gyRent.onBlur}
+                fullWidth
+                margin="dense"
+                slotProps={moneySlotProps}
+              />
+              <TextField
+                label="Purchase Price"
+                value={gyPurchase.raw}
+                onChange={(e) => gyPurchase.onChange(e.target.value)}
+                onFocus={gyPurchase.onFocus}
+                onBlur={gyPurchase.onBlur}
+                fullWidth
+                margin="dense"
+                slotProps={moneySlotProps}
+              />
+              <TextField
+                label="Rehab"
+                value={gyRehab.raw}
+                onChange={(e) => gyRehab.onChange(e.target.value)}
+                onFocus={gyRehab.onFocus}
+                onBlur={gyRehab.onBlur}
+                fullWidth
+                margin="dense"
+                slotProps={moneySlotProps}
               />
 
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Rate</TableCell>
-                    <TableCell>Grade</TableCell>
-                    <TableCell align="right">Total</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {REHAB_TIERS.map((tier) => {
-                    const total = sqft > 0 ? tier.rate * sqft : null
-                    const isActive = total !== null && total === rehab.dollars
-                    return (
-                      <Tooltip
-                        key={tier.rate}
-                        title={
-                          sqft > 0
-                            ? 'Click to use this rehab estimate'
-                            : 'Enter sqft first'
-                        }
-                        placement="left"
-                        disableInteractive
-                      >
-                        <TableRow
-                          hover
-                          selected={isActive}
-                          onClick={() => {
-                            if (total !== null) rehab.setValue(total)
-                          }}
-                          sx={{ cursor: sqft > 0 ? 'pointer' : 'default' }}
-                        >
-                          <TableCell>${tier.rate}/sqft</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={tier.grade}
-                              color={gradeColor(tier.grade)}
-                              size="small"
-                              variant="outlined"
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            {total !== null ? fmtTableMoney(total) : '—'}
-                          </TableCell>
-                        </TableRow>
-                      </Tooltip>
-                    )
-                  })}
-                </TableBody>
-              </Table>
+              <Divider sx={{ my: 2 }} />
+
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body2" sx={{ opacity: 0.65 }}>
+                  Gross Yield
+                </Typography>
+                <Typography sx={{ fontSize: 32, fontWeight: 800 }}>
+                  {grossYield !== null
+                    ? `${(grossYield * 100).toFixed(2)}%`
+                    : '—'}
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
-        {settings.showGrossYield && (
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">Gross Yield Calculator</Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 0.5, mb: 2, opacity: 0.65 }}
-                >
-                  For rental analysis. Annual rent ÷ (purchase + rehab).
-                </Typography>
-
-                <TextField
-                  label="Annual Market Rent"
-                  value={gyRent.raw}
-                  onChange={(e) => gyRent.onChange(e.target.value)}
-                  onFocus={gyRent.onFocus}
-                  onBlur={gyRent.onBlur}
-                  fullWidth
-                  margin="dense"
-                  slotProps={moneySlotProps}
-                />
-                <TextField
-                  label="Purchase Price"
-                  value={gyPurchase.raw}
-                  onChange={(e) => gyPurchase.onChange(e.target.value)}
-                  onFocus={gyPurchase.onFocus}
-                  onBlur={gyPurchase.onBlur}
-                  fullWidth
-                  margin="dense"
-                  slotProps={moneySlotProps}
-                />
-                <TextField
-                  label="Rehab"
-                  value={gyRehab.raw}
-                  onChange={(e) => gyRehab.onChange(e.target.value)}
-                  onFocus={gyRehab.onFocus}
-                  onBlur={gyRehab.onBlur}
-                  fullWidth
-                  margin="dense"
-                  slotProps={moneySlotProps}
-                />
-
-                <Divider sx={{ my: 2 }} />
-
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="body2" sx={{ opacity: 0.65 }}>
-                    Gross Yield
-                  </Typography>
-                  <Typography sx={{ fontSize: 32, fontWeight: 800 }}>
-                    {grossYield !== null
-                      ? `${(grossYield * 100).toFixed(2)}%`
-                      : '—'}
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        )}
-      </Grid>
-    </AppShell>
+      )}
+    </Grid>
   )
 }
