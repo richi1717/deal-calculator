@@ -1,10 +1,4 @@
-import {
-  type PropsWithChildren,
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-} from 'react'
+import { type PropsWithChildren, useMemo, useState } from 'react'
 import {
   CssBaseline,
   AppBar,
@@ -26,24 +20,14 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import ShareIcon from '@mui/icons-material/Share'
 import { makeTheme } from '../theme/theme'
 import SettingsDrawer from './SettingsDrawer'
+import {
+  SettingsDrawerContext,
+  useSettingsDrawer,
+} from '../context/settingsDrawer'
+
+export { useSettingsDrawer }
 
 const STORAGE_KEY = 'dealcalc_theme_mode'
-
-type SettingsDrawerContextValue = {
-  isOpen: boolean
-  openDrawer: () => void
-  closeDrawer: () => void
-}
-
-const SettingsDrawerContext = createContext<SettingsDrawerContextValue | null>(
-  null,
-)
-
-export function useSettingsDrawer() {
-  const ctx = useContext(SettingsDrawerContext)
-  if (!ctx) throw new Error('useSettingsDrawer must be used within AppShell')
-  return ctx
-}
 
 export default function AppShell({ children }: PropsWithChildren) {
   const systemPrefersDark =
@@ -100,7 +84,10 @@ export default function AppShell({ children }: PropsWithChildren) {
             </IconButton>
 
             <IconButton
-              onClick={() => setSettingsOpen(true)}
+              onClick={(e) => {
+                ;(e.currentTarget as HTMLElement).blur()
+                setSettingsOpen(true)
+              }}
               aria-label="Open settings"
               edge="end"
             >

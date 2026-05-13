@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Box,
   Card,
@@ -99,16 +99,19 @@ function CalculatorContent() {
   const rehab = useQueryMoneyField({
     key: 'rehab',
     defaultDollars: 25000,
+    hardCodedDefault: 25000,
     kMode,
   })
   const profit = useQueryMoneyField({
     key: 'profit',
     defaultDollars: settings.defaultProfit,
+    hardCodedDefault: 25000,
     kMode,
   })
   const fee = useQueryMoneyField({
     key: 'fee',
     defaultDollars: settings.defaultFee,
+    hardCodedDefault: 15000,
     kMode,
   })
   const list = useQueryMoneyField({ key: 'list', defaultDollars: 0, kMode })
@@ -130,9 +133,39 @@ function CalculatorContent() {
     kMode,
   })
 
-  // Quick Rehab sqft
   const [sqft, setSqft] = useQueryStateNumber('sqft', 0)
   const [sqftRaw, setSqftRaw] = useState(sqft > 0 ? String(sqft) : '')
+  const prevDefaultProfit = useRef(settings.defaultProfit)
+
+  useEffect(() => {
+    if (settings.defaultProfit === prevDefaultProfit.current) {
+      return
+    }
+
+    const prev = prevDefaultProfit.current
+
+    prevDefaultProfit.current = settings.defaultProfit
+
+    if (profit.dollars === prev) {
+      profit.setValue(settings.defaultProfit)
+    }
+  }, [settings.defaultProfit])
+
+  const prevDefaultFee = useRef(settings.defaultFee)
+
+  useEffect(() => {
+    if (settings.defaultFee === prevDefaultFee.current) {
+      return
+    }
+
+    const prev = prevDefaultFee.current
+
+    prevDefaultFee.current = settings.defaultFee
+
+    if (fee.dollars === prev) {
+      fee.setValue(settings.defaultFee)
+    }
+  }, [settings.defaultFee])
 
   const result = calculateSimpleMao({
     arv: arv.dollars,

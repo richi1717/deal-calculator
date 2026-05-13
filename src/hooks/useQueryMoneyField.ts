@@ -19,6 +19,7 @@ const formatNumber = (n: number, decimals: number) => {
 type Options = {
   kMode: boolean
   defaultDollars: number
+  hardCodedDefault?: number
   key: string
   kDisplayDecimals?: number
 }
@@ -26,6 +27,7 @@ type Options = {
 export function useQueryMoneyField({
   key,
   defaultDollars,
+  hardCodedDefault,
   kMode,
   kDisplayDecimals = 1,
 }: Options) {
@@ -61,24 +63,24 @@ export function useQueryMoneyField({
   }, [raw, kMode])
 
   const commitToUrl = (cleanedRaw: string) => {
-    const nextParams = new URLSearchParams(params)
     const cleaned = stripCommas(cleanedRaw).trim()
-
-    if (cleaned === '') {
-      nextParams.delete(key)
-      setParams(nextParams, { replace: true })
-      return
-    }
-
-    const n = Number(cleaned)
-    if (!Number.isFinite(n)) return
-
-    const nextDollars = Math.round(kMode ? n * 1000 : n)
-
-    if (nextDollars === defaultDollars) nextParams.delete(key)
-    else nextParams.set(key, String(nextDollars))
-
-    setParams(nextParams, { replace: true })
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        if (cleaned === '') {
+          next.delete(key)
+          return next
+        }
+        const n = Number(cleaned)
+        if (!Number.isFinite(n)) return prev
+        const nextDollars = Math.round(kMode ? n * 1000 : n)
+        const baseline = hardCodedDefault ?? 0
+        if (nextDollars === 0 || nextDollars === baseline) next.delete(key)
+        else next.set(key, String(nextDollars))
+        return next
+      },
+      { replace: true },
+    )
   }
 
   const onChange = (next: string) => {
@@ -111,10 +113,17 @@ export function useQueryMoneyField({
 
   const setValue = (nextDollars: number) => {
     const rounded = Math.round(nextDollars)
-    const nextParams = new URLSearchParams(params)
-    if (rounded === defaultDollars) nextParams.delete(key)
-    else nextParams.set(key, String(rounded))
-    setParams(nextParams, { replace: true })
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        const baseline = hardCodedDefault ?? 0
+        if (rounded === 0 || rounded === baseline) next.delete(key)
+        else next.set(key, String(rounded))
+        return next
+      },
+      { replace: true },
+    )
+
 
     if (kMode) {
       const k = rounded / 1000

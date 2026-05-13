@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { useSettings } from '../context/settings'
+import { useSettingsDrawer } from '../context/settingsDrawer'
 
 function makeBookmarklet(appOrigin: string) {
   return `javascript:(function(){var text=document.body.innerText;var addr=document.title.replace(/\\s*[|\\-\\u2013\\u2014].*/,'').trim();var sqM=text.match(/([1-9][\\d,]{2,5})\\s*(?:sq\\.?\\s*ft\\.?|square\\s*feet)/i);var sqft=sqM?sqM[1].replace(/,/g,''):'';var pM=text.match(/\\$\\s*([1-9]\\d{0,2}(?:,\\d{3}){1,2})/g)||[];var price='';for(var i=0;i<pM.length;i++){var n=parseInt(pM[i].replace(/[$,\\s]/g,''));if(n>=50000&&n<=5000000){price=String(n);break;}}var msg='Scraped from page:\\n\\nTitle:  '+(addr||'not found')+'\\nSqft:   '+(sqft?sqft+' sqft':'not found')+'\\nPrice:  '+(price?'$'+Number(price).toLocaleString():'not found')+'\\n\\nOpen Deal Calculator?';if(!confirm(msg))return;var p=new URLSearchParams();if(addr)p.set('t',addr);if(sqft)p.set('sqft',sqft);if(price)p.set('list',price);window.open('${appOrigin}?'+p.toString(),'_blank');})();`
@@ -59,10 +60,11 @@ function useMoneyField(value: number, onCommit: (v: number) => void) {
       if (/^\d*$/.test(e.target.value)) setRaw(e.target.value)
     },
     onBlur: () => {
-      const n = parseInt(raw)
-      if (Number.isFinite(n) && n >= 0) {
-        onCommit(n)
-        setRaw(String(n))
+      const num = parseInt(raw)
+
+      if (Number.isFinite(num) && num >= 0) {
+        onCommit(num)
+        setRaw(String(num))
       } else {
         setRaw(String(value))
       }
@@ -72,6 +74,7 @@ function useMoneyField(value: number, onCommit: (v: number) => void) {
 
 export default function SettingsDrawer() {
   const { settings, update, reset } = useSettings()
+  const { closeDrawer } = useSettingsDrawer()
   const [copied, setCopied] = useState(false)
   const bookmarklet = makeBookmarklet(window.location.origin)
 
@@ -122,7 +125,14 @@ export default function SettingsDrawer() {
   })
 
   return (
-    <Box>
+    <Box
+      component="form"
+      onSubmit={(e) => {
+        e.preventDefault()
+        ;(document.activeElement as HTMLElement)?.blur()
+        closeDrawer()
+      }}
+    >
       <Box sx={{ px: 2, pt: 1 }}>
         <FormControlLabel
           control={
@@ -165,6 +175,7 @@ export default function SettingsDrawer() {
         <TextField label="Down Payment" {...pctProps(dpField)} />
         <TextField label="Interest Rate (I/O)" {...pctProps(interestField)} />
       </Box>
+      <Button sx={{ display: 'none ' }} type="submit"></Button>
 
       <Divider sx={{ my: 1.5 }} />
 
@@ -216,6 +227,7 @@ export default function SettingsDrawer() {
 
       <Box sx={{ px: 2, pb: 2 }}>
         <Button
+          type="button"
           variant="outlined"
           color="warning"
           size="small"
@@ -225,6 +237,8 @@ export default function SettingsDrawer() {
           Reset to defaults
         </Button>
       </Box>
+
+      <Button type="submit" sx={{ display: 'none' }} />
     </Box>
   )
 }
